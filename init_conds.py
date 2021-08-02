@@ -35,6 +35,7 @@ def set_vel(Msun, planets):
         Initial velocities of planets
 
     """
+    #v = sqrt(GM/r)
     return np.sqrt(G * Msun / np.linalg.norm(planets, axis = 1))
 
 def rotz(theta):
@@ -60,62 +61,27 @@ def rotz(theta):
     R[1, 0] = np.sin(theta)
     return R
 
-def sun_earth_moon():
-    """
-    Give initial conditions for Sun-Earth-Moon System
-
-    """
-    n = 3
-    m = np.zeros((n, 1))
-    m[0, :] = M_sun
-    m[1, :] = M_earth
-    m[2, :] = 0.0123 * M_earth
-    x0 = np.zeros((n, 3))
-    x0[1, 0] = 1.0
-    x0[2, 0] = 1.00257
-    x0 *= au
-    # Put the barycenter at the origin
-    x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
-    v0 = np.zeros((n, 3))
-    v0[1:, 1] = set_vel(m[0, :], x0[1:, :])
-    v0[2:, 1] += set_vel(m[1, :], x0[2:, :] - x0[1:2, :])
-    # Set momentum to 0
-    v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
-    return n, m, x0, v0
-
-def sun_earth():
-    """
-    Give initial conditions for Sun-Earth System
-
-    """
-    n = 2
-    m = np.zeros((n, 1))
-    m[0, :] = M_sun
-    m[1, :] = M_earth
-    x0 = np.zeros((n, 3))
-    x0[1, 0] = 1.0
-    x0 *= au
-    # Put the barycenter at the origin
-    x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
-    v0 = np.zeros((n, 3))
-    v0[1:, 1] = set_vel(m[0, :], x0[1:, :])
-    # Set momentum to 0
-    v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
-    return n, m, x0, v0
-
 def sun_asteroid():
+    """
+    Give intial conditions for sun-asteroid system.
+    
+    """
     n = 2
+    # Calculate masses
     m = np.zeros((n, 1))
     m[0, :] = M_sun
     m[1, :] = M_earth * 0.01
+    # Calculate intial positions (Sun at origin)
     x0 = np.zeros((n, 3))
     x0[1, 0] = 1.0
     x0 *= au
     # Put the barycenter at the origin
     x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
+    # Calculate initial velocities (Sun set to 0)
     v0 = np.zeros((n, 3))
+    # Give asteroid an initial velocity of 10 km/s
     v0[1, 1] = 10000
-    # Set momentum to 0
+    # Set net momentum to 0
     v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
     return n, m, x0, v0
 
@@ -127,18 +93,22 @@ def sun_earth_L1():
     """
     n = 3
     alpha = M_earth / M_sun
+    # Calculate masses
     m = np.zeros((n, 1))
     m[0, :] = M_sun
     m[1, :] = M_earth
-    m[2, :] = 1
+    m[2, :] = 1 # This mass is negligible
+    # Calculate intial positions (Sun at origin)
     x0 = np.zeros((n, 3))
     x0[1, 0] = 1.0
-    x0[2, 0] = 1.0 * (1 - (alpha / 3) ** (1/3))
+    x0[2, 0] = 1.0 * (1 - (alpha / 3) ** (1/3)) # L1
     x0 *= au
     # Put the barycenter at the origin
     x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
     v0 = np.zeros((n, 3))
+    # Set Earth in circular orbit around the Sun
     v0[1:2, 1] = set_vel(m[0, :], x0[1:2, :])
+    # Set spacecraft's angular velocity to Earth's angular vel
     v0[2, 1] = v0[1, 1] * x0[2, 0] / x0[1, 0]
     # Set momentum to 0
     v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
@@ -152,18 +122,22 @@ def sun_earth_L2():
     """
     n = 3
     alpha = M_earth / M_sun
+    # Calculate masses
     m = np.zeros((n, 1))
     m[0, :] = M_sun
     m[1, :] = M_earth
-    m[2, :] = 1
+    m[2, :] = 1 # This mass is negligible
+    # Calculate intial positions (Sun at origin)
     x0 = np.zeros((n, 3))
     x0[1, 0] = 1.0
-    x0[2, 0] = 1.0 * (1 + (alpha / 3) ** (1/3))
+    x0[2, 0] = 1.0 * (1 + (alpha / 3) ** (1/3)) #L2
     x0 *= au
     # Put the barycenter at the origin
     x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
     v0 = np.zeros((n, 3))
+    # Set Earth in circular orbit around the Sun
     v0[1:2, 1] = set_vel(m[0, :], x0[1:2, :])
+    # Set spacecraft's angular velocity to Earth's angular vel
     v0[2, 1] = v0[1, 1] * x0[2, 0] / x0[1, 0]
     # Set momentum to 0
     v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
@@ -177,18 +151,22 @@ def sun_earth_L3():
     """
     n = 3
     alpha = M_earth / M_sun
+    # Calculate masses
     m = np.zeros((n, 1))
     m[0, :] = M_sun
     m[1, :] = M_earth
-    m[2, :] = 1
+    m[2, :] = 1 # This mass is negligible
+    # Calculate intial positions (Sun at origin)
     x0 = np.zeros((n, 3))
     x0[1, 0] = 1.0
-    x0[2, 0] = -1 - 5 * alpha / 12
+    x0[2, 0] = -1 - 5 * alpha / 12 #L3
     x0 *= au
     # Put the barycenter at the origin
     x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
     v0 = np.zeros((n, 3))
+    # Set Earth in circular orbit around the Sun
     v0[1:2, 1] = set_vel(m[0, :], x0[1:2, :])
+    # Set spacecraft's angular velocity to Earth's angular vel
     v0[2, 1] = v0[1, 1] * x0[2, 0] / x0[1, 0]
     # Set momentum to 0
     v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
@@ -202,19 +180,27 @@ def sun_earth_L4():
     """
     n = 3
     alpha = M_earth / M_sun
+    # Calculate masses
     m = np.zeros((n, 1))
     m[0, :] = M_sun
     m[1, :] = M_earth
-    m[2, :] = 1
+    m[2, :] = 1 # This mass is negligible
+    # Calculate intial positions (Sun at origin)
     x0 = np.zeros((n, 3))
     x0[1, 0] = 1.0
+    # Put craft at L4
     x0[2, 0] = 0.5 * (M_sun - M_earth) / (M_sun + M_earth)
     x0[2, 1] = np.sqrt(3) / 2
     x0 *= au
     # Put the barycenter at the origin
     x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
     v0 = np.zeros((n, 3))
+    # Set Earth in circular orbit around the Sun
     v0[1:, 1] = set_vel(m[0, :], x0[1:, :])
+    # Set velocity equal to earth's, but rotated to be
+    # perpendicular to the position vector. We aren't
+    # matching angular velocities here since (spoiler alert!)
+    # it doesn't matter all that much
     v0[2, :] = np.dot(rotz(np.arctan2(x0[2, 1], x0[2, 0])), v0[2, :])
     # Set momentum to 0
     v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
@@ -228,23 +214,28 @@ def sun_earth_L5():
     """
     n = 3
     alpha = M_earth / M_sun
+    # Calculate masses
     m = np.zeros((n, 1))
     m[0, :] = M_sun
     m[1, :] = M_earth
-    m[2, :] = 1
+    m[2, :] = 1 # This mass is negligible
+    # Calculate intial positions (Sun at origin)
     x0 = np.zeros((n, 3))
     x0[1, 0] = 1.0
+    # Put craft at L5
     x0[2, 0] = 0.5 * (M_sun - M_earth) / (M_sun + M_earth)
     x0[2, 1] = -np.sqrt(3) / 2
     x0 *= au
     # Put the barycenter at the origin
     x0 -= np.sum(m * x0, axis = 0) / np.sum(m)
     v0 = np.zeros((n, 3))
+    # Set Earth in circular orbit around the Sun
     v0[1:, 1] = set_vel(m[0, :], x0[1:, :])
+    # Set velocity equal to earth's, but rotated to be
+    # perpendicular to the position vector. We aren't
+    # matching angular velocities here since (spoiler alert!)
+    # it doesn't matter all that much
     v0[2, :] = np.dot(rotz(np.arctan2(x0[2, 1], x0[2, 0])), v0[2, :])
     # Set momentum to 0
     v0 -= np.sum(m * v0, axis = 0) / np.sum(m)
     return n, m, x0, v0
-
-if __name__ == "__main__":
-    sun_earth_moon()

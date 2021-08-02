@@ -38,6 +38,7 @@ def semi_implicit_euler(x0, v0, m, acc, T, dt):
     pos[:, :, 0] = x0
     vel[:, :, 0] = v0
     for i in range(len(time) - 1):
+        # Euler step
         vel[:, :, i + 1] = vel[:, :, i] + acc(pos[:, :, i], m) * dt
         pos[:, :, i + 1] = pos[:, :, i] + vel[:, :, i + 1] * dt
     return time, pos, vel
@@ -78,6 +79,7 @@ def verlet(x0, v0, m, acc, T, dt):
     pos[:, :, 0] = x0
     vel[:, :, 0] = v0
     for i in range(len(time) - 1):
+        # Verlet step
         pos[:, :, i + 1] = pos[:, :, i] + (vel[:, :, i] + 0.5 * acc(pos[:, :, i], m) * dt) * dt
         vel[:, :, i + 1] = vel[:, :, i] + 0.5 * (acc(pos[:, :, i], m) + acc(pos[:, :, i + 1], m)) * dt
     return time, pos, vel
@@ -164,7 +166,7 @@ def RKF(x0, v0, m, acc, T, h0, xtol, vtol, hrange=None):
             continue
         #Store old h
         time.append(time[-1] + h)
-        # Calculate new h
+        # Increase h since the error estimate is below the tolerance
         h *= 2
         h = min(h, T - h) #make sure the last value calculated is T
         if hrange:
